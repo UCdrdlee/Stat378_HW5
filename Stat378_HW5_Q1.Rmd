@@ -2,6 +2,8 @@
 title: "Stat378_HW5_Q1"
 output: html_document
 ---
+This is a test change. Testing for github commit..
+
 Below we have a function that computes matrix multiplication using for-loops.
 ```{python}
 import numpy as np
