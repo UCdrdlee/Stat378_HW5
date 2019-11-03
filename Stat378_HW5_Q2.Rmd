@@ -5,9 +5,15 @@ output: html_document
 
 ```{r}
 data(wine,package = 'rattle')
-data<-wine[-1]
-data
-
+data<-wine[-1] # Remove group variable from the data
+data #show data
+ranwine <- data[sample(nrow(data), 3), ] # Pick three random samples
+# Iterate over the three rows in the ranwine to get euclidean distance from the other  samples
+ranwine[1,]
+for (row in 1:nrow(ranwine)){
+  diff <- data - ranwine[rep(row,178),] # make 178-rows matrix where each row is a copy of a row in ranwine. And subtranct that matrix from the original data to get the difference.
+  print(diff)
+}
 
 
 ```
