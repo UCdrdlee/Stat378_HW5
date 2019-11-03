@@ -1,0 +1,14 @@
+---
+title: "Stat378_HW5_Q2"
+output: html_document
+---
+
+```{r}
+data(wine,package = 'rattle')
+data<-wine[-1]
+data
+
+
+
+```
+
