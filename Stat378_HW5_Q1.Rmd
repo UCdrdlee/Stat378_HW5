@@ -32,7 +32,7 @@ def matrix_comp1(x):
 # Check if the function works as it should be.  
 x = np.ones(10)
 y = matrix_comp1(x)
-print(y)
+#print(y)
 
 ```
 Below we have a function that computes matrix multiplication using vectorized method.
@@ -52,97 +52,67 @@ def matrix_comp2(x):
 # Check if the function works as it should be.  
 x = np.ones(10)
 y = matrix_comp2(x)
-print(y)
+#print(y)
 ```
 
-Define a function that takes n, the number of iterations, and return computing time. Since we have double for-loops, each one performs M iterations for MxM square matrices, n=10000 iterations means 100x100 matrices.
-
+Define a function that takes n, the number of iterations, and return computing time for the for-loop method.
 
 ```{python}
-
-import numpy as np
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 
-def dot_product(M,x):
-    xt = x.reshape(M.shape[1],1)
-    y = np.zeros((M.shape[0],1))
-    for i in np.arange(0,M.shape[0]):
-        for j in np.arange(0,M.shape[1]):
-            prod = M[i][j]*xt[j][0]
-            y[i]+=prod
-    return y
-
-def matrix_computation(M,N,G,x):
-    Mx = dot_product(M,x)
-    Nx = dot_product(N,x)
-#     print("Mx looks like: ", Mx, "Nx looks like: ", Nx, "G looks like: ", G)
-    return Mx+Nx+G
-
-elapsed_time = []
-def time_comp1(n):
-    iteration = np.arange(1,n+1).astype(int)
-    for iter_ in iteration:
-        M = np.random.normal(loc =0, scale =1, size=(iter_, iter_))
-        N = np.random.normal(loc =0, scale =1, size=(iter_, iter_))
-        G = np.random.normal(loc =0, scale =1, size=(iter_, 1))
-        x = np.ones(iter_)
-        start = timer()
-        y = matrix_computation(M,N,G,x)
-        end = timer()
-        elapsed_time.append(end-start)
+def forloop_time(n): # The function takes n iteration
+    start = timer()
+    for iteration in np.arange(1,n):
+        x = np.random.normal(loc =0, scale =1, size=(10, 1)) # Generate a randome 10x1 vector from standard normal distribution
+        matrix_comp1(x)
+    end = timer()
+    elapsed_time = end-start
     return elapsed_time
-
-elapsed_time = time_comp1(100)
-print(elapsed_time)
-
-k = np.arange(1,101)
-x_ax = k*k
-fig = plt.scatter(x_ax,elapsed_time)
-plt.xlabel('Number of iterations', fontsize=16)
-plt.ylabel('Elapsed time(s)', fontsize=16)
-
 ```
 
-Define a function that times a function that uses vectorized method. To compare computing time to n = 1,...,10000 iterations, we use 1x1,2x2,...,100x100 matrices.
+Define another function that takes n, the number of iterations, and return computing time for the vectorized method.
 
 ```{python}
-elapsed_time = []
-
-def matrix_comp2(M,N,G,x):
-    xt = x.reshape(x.size,1)
-    Mx = np.matrix(np.dot(M,x)).T
-    Nx = np.matrix(np.dot(N,x)).T
-    F = np.matrix(Mx)+np.matrix(Nx)+np.matrix(G)
-    return F
-
-def time_comp2(n):
-    iteration = np.arange(1,n+1).astype(int)
-    for iter_ in iteration:
-        M = np.random.normal(loc =0, scale =1, size=(iter_, iter_))
-        N = np.random.normal(loc =0, scale =1, size=(iter_, iter_))
-        G = np.random.normal(loc =0, scale =1, size=(iter_, 1))
-        x = np.ones(iter_)
-        start = timer()
-        y = matrix_comp2(M,N,G,x)
-        end = timer()
-        elapsed_time.append(end-start)
+#import numpy as np
+def vectorized_time(n): # The function takes n iteration
+    start = timer()
+    for iteration in np.arange(0,n):
+        x = np.random.normal(loc =0, scale =1, size=(10, 1)) # Generate a randome 10x1 vector from standard normal distribution
+        matrix_comp2(x)
+    end = timer()
+    elapsed_time = end-start
     return elapsed_time
-    
-elapsed_time = time_comp2(100)
-    
-k = np.arange(1,101)
-x_ax = k*k
-fig = plt.scatter(x_ax,elapsed_time)
-plt.xlabel('Equivalent number of iterations', fontsize=16)
-plt.ylabel('Elapsed time(s)', fontsize=16)
 ```
 
+Let's compare the computing times for these two methods. Instead of computing for all number of iterations from 1 to 10000, I'll create a list of evenly spaced number of iterations (every 100 iterations until we reach 10000 iterations). I will plot the computing times to show how fast vectorized method is compared to the for-loop implementtion for each number of iterations.
+
+```{python}
+import numpy as np
+# Compute time it takes to finish n iterations of for-loop function and store it to plot later.
+comp_time = []
+num_iterations = np.arange(0,10001,100)
+for i in num_iterations:
+    comp_time.append(forloop_time(i))
+# Compute time it takes to finish n iterations of the vectorized function and store it to plot later.
+comp_time2 = []
+num_iterations = np.arange(0,10001,100)
+for i in num_iterations:
+    comp_time2.append(vectorized_time(i))
+    
+fig, ax = plt.subplots()
+ax.scatter(num_iterations,comp_time2,color='green',label='vectorized')
+ax.scatter(num_iterations,comp_time, color='red',label='for-loop')
+plt.xlabel("Number of iterations")
+plt.ylabel("Computing time (s)")
+ax.legend()
+
+```
 
 Below I have R implementation of Function B using double for-loops.
 
 ```{r}
-matrix_comp1 <- function(x){
+matrix_comp3 <- function(x){
   M = matrix(rnorm(10*10,mean=0,sd=1), 10, 10) 
   G = matrix(rnorm(10*10,mean=0,sd=1), 10, 1) 
   for(i in 1:nrow(M)) {
@@ -155,14 +125,14 @@ matrix_comp1 <- function(x){
 }
 
 x<-1:10
-H = matrix_comp1(x)
+H = matrix_comp3(x)
 #print(H)
 ```
 
 Below I have R implementation of Function B using vectorized methods.
 
 ```{r}
-matrix_comp2 <- function(x){
+matrix_comp4 <- function(x){
   M = matrix(rnorm(10*10,mean=0,sd=1), 10, 10) 
   G = matrix(rnorm(10*10,mean=0,sd=1), 10, 1) 
   M = M^3
@@ -172,11 +142,11 @@ matrix_comp2 <- function(x){
 
 # Test code
 x<-1:10
-H = matrix_comp2(x)
+H = matrix_comp4(x)
 #print(H)
 ```
 
-The below function times computing time the for-loop method takes.
+The below function times computing time the for-loop method takes for Function B.
 
 ```{r}
 library(tictoc)
@@ -184,58 +154,61 @@ tic.clearlog()
 size<-c(1:100)
 iter<-size*size
 
-matrix_comp3 <- function(l){
-  li <-list()
-  for (i in 1:l){
-    #print(paste("current i is: ",i))
-    M = matrix(rnorm(i*i,mean=0,sd=1), i, i) 
-    G = matrix(rnorm(i*i,mean=0,sd=1), i, 1) 
-    start <-Sys.time()
-    for(j in 1:nrow(M)) {
-      for(k in 1:ncol(M)) {
-        M[j,k] = M[j,k]^3
+comp_time3 <- function(n){
+  start <-Sys.time()
+  for(i in 1:n) {
+      x = matrix(rnorm(10*10,mean=0,sd=1), 10, 1) 
+      matrix_comp3(x)
       }
-    }
-    end <- Sys.time()
-    time_diff <- as.numeric(end-start)
-    #log.lst <- tic.log(format = TRUE)
-    #timings <- unlist(lapply(log.lst, function(x) x$toc - x$tic(i)))
-    #res <- gsub( " sec elapsed", "", unlist(log.txt))
-    li<-append(li,time_diff)
+  end <- Sys.time()
+  time_diff <- as.numeric(end-start)
+  return(time_diff)
   }
-  plot(iter,li,xlab = "Number of iterations",ylab = "Time elapsed(s)")
-}
 
-matrix_comp3(100)
-
+#comp_time3(500)
 ```
-The below function times computing time it takes with the vectorized method. Cubing each element in a MxM matrix takes M iteration (for columns) by M iteration (for rows) making it MxM iterations. So cubing a MxM matrix with a vectorized methos is "one shot" but its equivalent number of iterations is MxM.
+The below function times computing time the vectorized method takes for Function B.
 
 ```{r}
-library(tictoc)
 tic.clearlog()
-size<-c(1:100)
-iter<-size*size
 
-matrix_comp3 <- function(l){
-  li <-list()
-  for (i in 1:l){
-    #print(paste("current i is: ",i))
-    M = matrix(rnorm(i*i,mean=0,sd=1), i, i) 
-    G = matrix(rnorm(i*i,mean=0,sd=1), i, 1) 
-    start <-Sys.time()
-    M = M^3
-    end <- Sys.time()
-    time_diff <- as.numeric(end-start)
-    #log.lst <- tic.log(format = TRUE)
-    #timings <- unlist(lapply(log.lst, function(x) x$toc - x$tic(i)))
-    #res <- gsub( " sec elapsed", "", unlist(log.txt))
-    li<-append(li,time_diff)
+comp_time4 <- function(n){
+  start <-Sys.time()
+  for(i in 1:n) {
+      x = matrix(rnorm(10*10,mean=0,sd=1), 10, 1) 
+      matrix_comp4(x)
+      }
+  end <- Sys.time()
+  time_diff <- as.numeric(end-start)
+  return(time_diff)
   }
-  plot(iter,li,xlab = "Equivalent number of iterations",ylab = "Time elapsed(s)")
+```
+These two functions time the computing time it takes for the for-loop methos and the vectorized method to perform n iterations. I created a list of equally spaced numbers from 1 to 10001 and stored the computing times to plot them in the next step.
+
+```{r}
+li <-list()
+li2 <- list()
+c<-seq(from = 1, to = 10001, by = 100)
+
+for(i in c) {
+  time3<-comp_time3(i)
+  li<-append(li,time3)
 }
 
-matrix_comp3(100)
+#print(c)
+for(i in c) {
+  time4<-comp_time4(i)
+  li2<-append(li2,time4)
+}
+```
 
+Below is the plot for computing time it takes for the n iterations of for-loop implementaion of function B.
+```{r}
+plot(c,li,xlab = "Number of iterations",ylab = "Computing time (s)",main  ="For loop method")
+```
+Below is the plot for computing time it takes for the n iterations of the vectorized method for function B.
+
+```{r}
+plot(c,li2,xlab = "Number of iterations",ylab = "Computing time (s)",main  ="Vectorized method")
 ```
 
