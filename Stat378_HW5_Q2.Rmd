@@ -12,7 +12,7 @@ ranwine <- data[sample(nrow(data), 3), ] # Pick three random samples
 ranwine[1,]
 for (row in 1:nrow(ranwine)){
   diff <- data - ranwine[rep(row,178),] # make 178-rows matrix where each row is a copy of a row in ranwine. And subtranct that matrix from the original data to get the difference.
-  print(diff)
+  diff_sqrd <- diff^2 # Square the differences
 }
 
 
