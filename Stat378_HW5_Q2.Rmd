@@ -26,6 +26,7 @@ dist_fct <-function(centroids){
     euc_dist <- as.data.frame(sqrt(rowSums(diff_sqrd)))
     eucdist[i]<-euc_dist
 
+<<<<<<< HEAD
  
   }
 return(eucdist)
@@ -62,6 +63,19 @@ if(sum(prev_centroids==centroids)==13){break} #if centroids converge then break
 
 cluster <- rbind(group1,group2,group3) #binding the groups together
 
+=======
+grouping <- function(eucdist){
+  ls <- list()
+  for (i in 1:nrow(eucdist)){
+    group <- which.min(eucdist[i,])
+    ls.append(group)
+  }
+  ls<-as.data.frame(ls)
+  print(paste("ls is: ",ls))
+}
+
+ 
+>>>>>>> 3a0f82fbc92accbc2700dd566171b1f08decedae
 
 ```
 
