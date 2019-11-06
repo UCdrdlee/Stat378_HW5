@@ -6,15 +6,38 @@ output: html_document
 ```{r}
 data(wine,package = 'rattle')
 data<-wine[-1] # Remove group variable from the data
-data #show data
-ranwine <- data[sample(nrow(data), 3), ] # Pick three random samples
+#data #show data
+#ranwine <- data[sample(nrow(data), 3), ] # Pick three random samples
 # Iterate over the three rows in the ranwine to get euclidean distance from the other  samples
-ranwine[1,]
-for (row in 1:nrow(ranwine)){
-  diff <- data - ranwine[rep(row,178),] # make 178-rows matrix where each row is a copy of a row in ranwine. And subtranct that matrix from the original data to get the difference.
-  diff_sqrd <- diff^2 # Square the differences
+#ranwine[1,]
+#standardized_data <- as.data.frame(data-sapply(data, mean, simplify = TRUE))/sapply(data, sd, simplify = TRUE)
+#for (col in 1:ncol(data)){
+ # data[col]<-(data[col]-mean(data[col]))/sd(data[col])
+#}
+std_data<-as.data.frame(scale(data)) # Standardize the wine data
+centroids <- std_data[sample(nrow(std_data), 3), ] # Pick 3 random wines to start with
+#print(data)
+euclidean_dist <- list()
+eucdist<-as.data.frame(matrix(data=NA, nrow=178, ncol=3))
+
+dist<-function(centroids){
+  for (i in 1:nrow(centroids)){
+    print(paste("current i is: ", i))
+    diff <- std_data - centroids[rep(i,178),] # make 178-rows matrix where each row is a copy of a row in ranwine. And subtranct that matrix from the original data to get the difference.
+    print(diff)
+    diff_sqrd <- diff^2
+    print(diff_sqrd)# Square the differences
+    euc_dist <- as.data.frame(sqrt(rowSums(diff_sqrd)))
+    eucdist[i]<-euc_dist
+  print(eucdist)
+  }
 }
 
+cluster <- function(eucdist){
+  for (i in 1:nrow(eucdist)){
+    group <- which.min(eucdist[i,])
+  }
+}
 
 ```
 
