@@ -306,7 +306,7 @@ time <- function(){
   return(time.taken*1000)
 }
 
-plot(time(), ylab="time in ms", xlab ="n") #plot
+plot(time(), main = "for loop method", ylab="time in ms", xlab ="n") #plot
 
 
 ```
@@ -337,7 +337,7 @@ time <- function(){
   return(time.taken*1000)
 }
 
-plot(time(), ylab="time in ms", xlab ="n") #plot
+plot(time(), main = "vectorised method", ylab="time in ms", xlab ="n") #plot
 
 
 ```
