@@ -212,3 +212,283 @@ Below is the plot for computing time it takes for the n iterations of the vector
 plot(c,li2,xlab = "Number of iterations",ylab = "Computing time (s)",main  ="Vectorized method")
 ```
 
+
+
+
+Student 2 Question 1 Function A
+
+Q1ii) Vectorised method
+```{r}
+#initialising the matrices and vectors
+entries_m = rnorm(100, mean=0, sd=1)
+entries_n = rnorm(100, mean=0, sd=1)
+entries_x = rnorm(10, mean=0, sd=1)
+entries_g = rnorm(10, mean=0, sd=1)
+
+m = matrix(entries_m, nrow=10)
+n = matrix(entries_n, nrow=10)
+x = matrix(entries_x, nrow=10)
+g = matrix(entries_g, nrow=10)
+```
+
+```{r}
+#vectorised approach
+fun_a1 <- function(){
+start.time <- Sys.time()
+m%*%x + n%*%x + g 
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+}
+
+fun_a1()
+```
+
+Q1i) For Loop method
+```{r}
+#Element by element approach
+fun_a2 <- function(){
+  
+final_matrix <- c()
+final_m1 <- c()
+final_m2 <- c()
+
+for(i in 1:10){
+  m1 <- c()
+  m2 <- c()
+  
+  for(j in 1:10){
+   
+    m1 <- c(m1, (m[i,j] * x[j]))
+    m1 <- sum(m1)
+    m2 <- c(m2, (n[i,j] * x[j]))
+    m2 <- sum(m2)
+    
+    
+  }
+  
+  final_m1 <- c(final_m1, m1)
+  final_m2 <- c(final_m2, m2)
+  
+  final_matrix <- c(final_matrix, final_m1[i] + final_m2[i] + g[i])
+  
+  
+}
+
+}
+
+fun_a2()
+```
+
+Q1(iii) Calculating and plotting time for "for loop" approach
+
+```{r}
+#time function
+time <- function(){
+  
+  time.taken <- c()
+  n <- 0
+  
+  while(n < 10000){
+    
+    start.time <- Sys.time() #start timing
+    fun_a2()
+    end.time <- Sys.time() #end timing
+    
+   
+    time.taken <- c(time.taken, end.time - start.time)
+    
+    n <- n+1
+  }
+  
+
+  
+  return(time.taken*1000)
+}
+
+plot(time(), ylab="time in ms", xlab ="n") #plot
+
+
+```
+
+Q1(iv) Calculating and plotting time for vectorised approach
+
+```{r}
+#time function
+time <- function(){
+  
+  time.taken <- c()
+  n <- 0
+  
+  while(n < 10000){
+    
+    start.time <- Sys.time() #start time
+    fun_a1()
+    end.time <- Sys.time() #end time
+    
+   
+    time.taken <- c(time.taken, end.time - start.time)
+    
+    n <- n+1
+  }
+  
+
+  
+  return(time.taken*1000)
+}
+
+plot(time(), ylab="time in ms", xlab ="n") #plot
+
+
+```
+
+
+
+
+Student 2 Question 1 Function B
+
+```{r}
+library(reticulate)
+```
+
+```{python}
+#initialisation
+import numpy as np
+
+mu, sigma = 0, 1 # mean and standard deviation
+s = np.random.normal(mu, sigma, 100)
+v = np.random.normal(mu, sigma, 10)
+
+m = np.array(np.matrix(s).reshape(10,10))
+x = np.array([v]).transpose()
+g = np.array([v]).transpose()
+
+```
+
+Q1ii) Vectorised method 
+
+```{python}
+
+def func_1():
+
+  mat1 = np.dot(m,m)
+  mat2 = np.dot(mat1,m)
+
+  vectorised_result = np.dot(mat2,x) + 3*g
+  
+func_1()
+
+```
+
+Q1i) For loop method
+
+```{python}
+def func_2():
+  res = [[0 for x in range(10)] for y in range(10)]  #10x10 empty matrix
+  res2 = [[0 for x in range(10)] for y in range(10)]  
+  res3 = np.array([[0 for x in range(10)]]).transpose() #10x1 empty vector
+
+  # explicit for loops 
+  for i in range(len(m)): 
+    for j in range(len(m[0])): 
+      for k in range(len(m)): 
+  
+        # resulted matrix 
+        res[i][j] += m[i][k] * m[k][j] #m^2
+  
+  for i in range(len(res)): 
+    for j in range(len(m[0])): 
+      for k in range(len(m)): 
+  
+      # resulted matrix 
+        res2[i][j] += res[i][k] * m[k][j] #m^3
+            
+  for i in range(len(res2)):
+    for j in range(len(x)):
+    
+      res3[i] = res3[i] + (res2[i][j] * x[j]) #m^3 %*% x
+    
+  for i in range(len(res3)):
+    res3[i] = res3[i] + 3*g[i] #m^3 %*% x + 3g
+    
+
+
+```
+
+Q1iii) Timing and plotting for loop method
+
+```{python}
+import timeit
+import matplotlib.pyplot as plt 
+
+def time4():
+
+  n = 0
+  time = []
+  while(n < 10000):
+    tic = timeit.default_timer()
+   
+    func_2()
+   
+    toc = timeit.default_timer()
+
+    time.append(((toc - tic)*1000))
+    n += 1
+    
+  return(np.array(time)*1000)
+
+
+x_axis = list(range(10000))
+
+plt.plot(x_axis,time4())
+
+# naming the x axis 
+plt.xlabel('iterations') 
+# naming the y axis 
+plt.ylabel('time taken in ms') 
+  
+# giving a title to my graph 
+plt.title('For loop method') 
+  
+# function to show the plot 
+plt.show() 
+```
+
+Q1iv) Timing and plotting vectorised method
+
+```{python}
+import timeit
+import matplotlib.pyplot as plt 
+
+def time3():
+
+  n = 0
+  time = []
+  while(n < 10000):
+    tic = timeit.default_timer()
+   
+    func_1()
+   
+    toc = timeit.default_timer()
+
+    time.append(((toc - tic)*1000))
+    n += 1
+    
+  return(np.array(time)*1000)
+
+
+x_axis = list(range(10000))
+
+plt.plot(x_axis,time3())
+
+# naming the x axis 
+plt.xlabel('iterations') 
+# naming the y axis 
+plt.ylabel('time taken in ms') 
+  
+# giving a title to my graph 
+plt.title('Vectorised method') 
+  
+# function to show the plot 
+plt.show() 
+```
