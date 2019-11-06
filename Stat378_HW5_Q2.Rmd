@@ -33,11 +33,17 @@ dist<-function(centroids){
   }
 }
 
-cluster <- function(eucdist){
+grouping <- function(eucdist){
+  ls <- list()
   for (i in 1:nrow(eucdist)){
     group <- which.min(eucdist[i,])
+    ls.append(group)
   }
+  ls<-as.data.frame(ls)
+  print(paste("ls is: ",ls))
 }
+
+ 
 
 ```
 
