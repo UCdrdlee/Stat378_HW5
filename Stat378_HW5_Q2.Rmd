@@ -4,40 +4,113 @@ output: html_document
 ---
 
 ```{r}
-data(wine,package = 'rattle')
+#might take a while to run occasionally, depending on initialisation, sometimes fast, sometimes slow.
+
+data(wine,package = 'rattle') #import data
 data<-wine[-1] # Remove group variable from the data
-#data #show data
-#ranwine <- data[sample(nrow(data), 3), ] # Pick three random samples
-# Iterate over the three rows in the ranwine to get euclidean distance from the other  samples
-#ranwine[1,]
-#standardized_data <- as.data.frame(data-sapply(data, mean, simplify = TRUE))/sapply(data, sd, simplify = TRUE)
-#for (col in 1:ncol(data)){
- # data[col]<-(data[col]-mean(data[col]))/sd(data[col])
-#}
-std_data<-as.data.frame(scale(data)) # Standardize the wine data
+
+std_data <- as.data.frame(scale(data)) # Standardize the wine data
 centroids <- std_data[sample(nrow(std_data), 3), ] # Pick 3 random wines to start with
-#print(data)
+
 euclidean_dist <- list()
 eucdist<-as.data.frame(matrix(data=NA, nrow=178, ncol=3))
 
-dist<-function(centroids){
+#function to calculate the distance from point to centroid
+dist_fct <-function(centroids){
   for (i in 1:nrow(centroids)){
-    print(paste("current i is: ", i))
-    diff <- std_data - centroids[rep(i,178),] # make 178-rows matrix where each row is a copy of a row in ranwine. And subtranct that matrix from the original data to get the difference.
-    print(diff)
+   
+    diff <- std_data - centroids[rep(i,178),] # make 178-rows matrix where each row is a copy of a row in ranwine. And subtract that matrix from the original data to get the difference.
+    
     diff_sqrd <- diff^2
-    print(diff_sqrd)# Square the differences
+   
     euc_dist <- as.data.frame(sqrt(rowSums(diff_sqrd)))
     eucdist[i]<-euc_dist
-  print(eucdist)
+
+ 
   }
+return(eucdist)
 }
 
-cluster <- function(eucdist){
-  for (i in 1:nrow(eucdist)){
-    group <- which.min(eucdist[i,])
-  }
-}
+#iterating 1000 times
+for(w in 1:1000){
+
+dist <- dist_fct(centroids)
+
+group1 <- c()
+group2 <- c()
+group3 <- c()
+prev_centroids <- centroids
+centroids <- c()
+
+
+#if lowest distance in row1 is col1, assign it to group1, similarly for group2 and group3
+for (i in 1:nrow(dist)){
+    if (which.min(dist[i,]) == 1){group1 <- rbind(group1, std_data[i,])} 
+    if (which.min(dist[i,]) == 2){group2 <- rbind(group2,std_data[i,])}
+    if (which.min(dist[i,]) == 3){group3 <- rbind(group3,std_data[i,])}}
+
+#recalculating the new centroids
+centroid1 <- sapply(group1, mean)
+centroid2 <- sapply(group2, mean)
+centroid3 <- sapply(group3, mean)
+centroids <- rbind(centroid1, centroid2, centroid3)
+
+rownames(centroids) <- c()
+
+if(sum(prev_centroids==centroids)==13){break} #if centroids converge then break
+} #end of for loop
+
+cluster <- rbind(group1,group2,group3) #binding the groups together
+
 
 ```
+
+Plotting the cluster assignment
+```{r}
+library(fpc)
+
+#ugly code below (don't read)
+
+test <- cluster 
+test2 <- data.matrix(test, rownames.force = NA)
+
+test_data <- std_data
+
+row1 <- as.numeric(rownames(group1))
+row2 <- as.numeric(rownames(group2))
+row3 <- as.numeric(rownames(group3))
+
+
+t1 <- t(t(row1))
+t2 <- t(t(row2))
+t3 <- t(t(row3))
+
+g1 <- rep(1, nrow(t1))
+g2 <- rep(2, nrow(t2))
+g3 <- rep(3, nrow(t3))
+
+cluster1 <- cbind(t1,g1)
+cluster2 <- cbind(t2,g2)
+cluster3 <- cbind(t3,g3)
+
+clusters <- rbind(cluster1,cluster2,cluster3)
+
+newdata1 <- as.data.frame(clusters)
+
+colnames(newdata1) <- c("index", "cluster")
+attach(newdata1)
+newdata <- newdata1[order(index),]
+detach(newdata1)
+assignment <- newdata[,2] 
+
+#end of ugly code
+
+
+
+
+plotcluster(std_data, assignment) #plotting the cluster assigments
+```
+
+
+
 
